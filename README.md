@@ -1,6 +1,6 @@
 # API,Authentication, authorization and security of web applications
 
-### *v0.0.1*
+### *v0.0.2*
 
 *Проект выполненный в рамках обучения по темам: "Аутентификация и авторизация", "Безопастность веб-приложений"*.
 
