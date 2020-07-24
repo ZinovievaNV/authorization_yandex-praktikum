@@ -43,7 +43,7 @@ module.exports = {
       .then((hash) => User.create({
         name, about, avatar, email, password: hash,
       }))
-      .then((user) => res.status(201).send({ data: user, message: 'Вы создались' }))
+      .then((user) => res.status(201).send({ data: user, message: 'Вы создались!' }))
       .catch(() => res.status(400).send({ message: 'Такая почта уже существует' }));
   },
 };
