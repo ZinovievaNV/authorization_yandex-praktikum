@@ -1,6 +1,7 @@
 const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
+const isImageUrl = require('is-image-url');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
@@ -29,7 +30,7 @@ module.exports = {
     } = req.body;
 
     if (!validator.isEmail(email)) {
-      return res.send({ message: 'Не правильный формат почты' });
+      return res.status(400).send({ message: 'Не правильный формат почты' });
     }
 
     const { password } = req.body;
@@ -39,11 +40,24 @@ module.exports = {
       return res.status(400).send({ message: 'Слишком короткий пароль! Длинна пароля должна составлять от 6 символов' });
     }
 
+    if (!isImageUrl(avatar)) {
+      return res.status(400).send({ message: 'Не правильный url аватара' });
+    }
+
     bcrypt.hash(req.body.password, 10)
       .then((hash) => User.create({
         name, about, avatar, email, password: hash,
       }))
       .then((user) => res.status(201).send({ data: user, message: 'Вы создались!' }))
-      .catch(() => res.status(400).send({ message: 'Такая почта уже существует' }));
+      // eslint-disable-next-line consistent-return
+      .catch((error) => {
+        if (error.name === 'ValidationError') {
+          if (error.errors.email && error.errors.email.kind === 'unique') {
+            return res.status(409).send({ error: error.errors.email.properties.message });
+          }
+          return res.status(400).send({ error: error.message });
+        }
+        res.status(500).send({ message: `${error}` });
+      });
   },
 };
